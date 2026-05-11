@@ -1,0 +1,302 @@
+/* ============================================================
+   PAGES.CSS — Page-spezifische Styles für alle vier Pages.
+   Home, Pricing, Profile, Login.
+   ============================================================ */
+
+/* ========== HOME ========== */
+.page-home .hero {
+  text-align: center;
+  padding: 3rem 0 4rem;
+}
+
+.page-home h1 {
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.page-home .lead {
+  margin-top: 1.25rem;
+  font-size: 1.05rem;
+  color: var(--color-text-muted);
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.page-home .cta-row {
+  margin-top: 2rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.grid-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.feature-card {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-card);
+}
+
+.feature-card h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.feature-card p {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+/* ========== PRICING ========== */
+.page-pricing h1 {
+  text-align: center;
+  font-size: 2.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.page-pricing .lead {
+  text-align: center;
+  color: var(--color-text-muted);
+  margin-top: 0.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-rows: auto auto auto 1fr auto;
+  gap: 1.5rem;
+
+  /* === ISSUE #2 — Subgrid kommt hier dazu ===
+     Aktuell hat jede Card ihre eigene innere Höhe.
+     Cards mit unterschiedlich langen Features-Listen sind
+     vertikal nicht aligned. Subgrid auf .plan macht jede Row
+     in jeder Card gleich hoch. Code in der Lecture, Block B. */
+}
+
+.plan {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  padding: 2rem;
+  display: grid;
+  grid-row: span 5;
+  grid-template-rows: subgrid;
+  gap: 0.75rem;
+  box-shadow: var(--shadow-card);
+}
+
+.plan h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.plan .price {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--color-brand);
+  letter-spacing: -0.02em;
+}
+
+.plan .desc {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+.plan .features {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0.5rem 0;
+}
+
+.plan .features li {
+  font-size: 0.9rem;
+  padding-left: 1.25rem;
+  position: relative;
+}
+
+.plan .features li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--color-brand);
+  font-weight: 700;
+}
+
+.plan .btn {
+  align-self: end;
+  text-align: center;
+}
+
+.plan-featured {
+  background: var(--color-featured-tint);
+  border: 2px solid var(--color-featured-border);
+}
+
+/* ========== PROFILE ========== */
+.page-profile .profile-header {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  margin-bottom: 2.5rem;
+}
+
+.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--color-featured-tint);
+  border: 2px solid var(--color-featured-border);
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: var(--color-brand);
+  flex-shrink: 0;
+}
+
+.profile-meta h1 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.profile-meta .role {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  margin-top: 0.15rem;
+}
+
+.profile-meta .bio {
+  margin-top: 0.5rem;
+  max-width: 480px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+.stat {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  box-shadow: var(--shadow-card);
+  transition: border-color 0.15s ease;
+}
+
+.stat:hover {
+  border-color: var(--color-featured-border);
+}
+
+.stat-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--color-brand);
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+/* ========== LOGIN ========== */
+.page-login {
+  display: grid;
+  place-items: center;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  padding: 2.25rem;
+  box-shadow: var(--shadow-card);
+}
+
+.login-card h1 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.login-card .subtitle {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  margin-top: 0.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.field label {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.field input {
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-button);
+  font: inherit;
+  background: var(--color-card);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.field input:focus {
+  outline: none;
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 3px var(--color-featured-tint);
+}
+
+.login-form:has(input:placeholder-shown) .btn {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.forgot {
+  text-align: center;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+.forgot a {
+  color: var(--color-brand);
+  text-decoration: none;
+}

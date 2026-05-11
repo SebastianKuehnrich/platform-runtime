@@ -1,0 +1,60 @@
+/* ============================================================
+   TRANSITIONS.CSS — View Transitions API
+   Diese Datei ist absichtlich fast leer.
+   Die Lecture füllt sie zwischen den Markern.
+
+   Issues, die hier gelöst werden:
+     · Issue #1 — Page-Transitions zwischen allen vier Pages
+     · Issue #4 — view-transition-name Collision (Hyrum's Law)
+   ============================================================ */
+
+
+/* === BEGIN ISSUE #1 — View Transitions Opt-In === */
+/*  Wir aktivieren View Transitions als Opt-In für die ganze
+    Page. Eine Zeile reicht. Browser ohne Support ignorieren
+    es stillschweigend.                                        */
+@view-transition {
+    navigation:auto;
+}
+
+
+/* === END ISSUE #1 === */
+
+
+/* === BEGIN ISSUE #1 — Custom Animation für Page-Wechsel === */
+/*  Default-Transition ist ein Crossfade. Wir bauen ein leichtes
+    Slide-In, das sich nach Linear/Vercel anfühlt.             */
+::view-transition-old(root){
+    animation: 250ms cubic-bezier(0.4, 0, 0.2, 1) both fade-slide-out;
+}
+
+::view-transition-new(root){
+    animation: 250ms cubic-bezier(0.4, 0, 0.2, 1) both fade-slide-in;
+}
+
+@keyframes fade-slide-out{
+    to{
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+}
+
+@keyframes fade-slide-in {
+    from{
+        opacity: 0;
+        transform: translateY(8px);
+    }
+}
+
+
+/* === END ISSUE #1 === */
+
+
+/* === BEGIN ISSUE #4 — Eindeutige Transition-Names === */
+/*  Wenn mehrere Elemente auf zwei Pages denselben
+    view-transition-name haben, wirft der Browser einen Fehler.
+    Wir geben jeder Pricing-Card einen eindeutigen Name.       */
+
+
+
+/* === END ISSUE #4 === */

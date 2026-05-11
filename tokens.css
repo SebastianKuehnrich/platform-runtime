@@ -1,0 +1,58 @@
+/* ============================================================
+   TOKENS.CSS — 3-Layer Token-System
+   Layer 1 = Primitives, Layer 2 = Semantic, Layer 3 = Component
+   Brand-Wechsel = Layer 2 ändern, alle Layer-3-Werte folgen.
+   ============================================================ */
+
+/* LAYER 1 — PRIMITIVES (rohe Werte, niemals direkt in Components) */
+:root {
+  --slate-50:  #f8fafc;
+  --slate-100: #f1f5f9;
+  --slate-200: #e2e8f0;
+  --slate-300: #cbd5e1;
+  --slate-500: #64748b;
+  --slate-700: #334155;
+  --slate-900: #0f172a;
+  --indigo-500: #6366f1;
+  --white: #ffffff;
+  --black: #000000;
+}
+
+/* LAYER 2 — SEMANTIC (Bedeutung, nicht Zahl) */
+:root {
+  --color-brand:        var(--indigo-500);
+  --color-text:         var(--slate-900);
+  --color-text-muted:   var(--slate-500);
+  --color-bg:           var(--slate-50);
+  --color-card:         var(--white);
+  --color-border:       var(--slate-200);
+  --color-muted:        var(--slate-300);
+}
+
+/* LAYER 3 — COMPONENT (color-mix derived, oklch) */
+:root {
+  --color-featured-tint:   color-mix(in oklch, var(--color-brand)  8%, white);
+  --color-featured-border: color-mix(in oklch, var(--color-brand) 70%, white);
+  --color-button-hover:    color-mix(in oklch, var(--color-brand) 85%, black);
+  --color-tooltip-bg:      var(--slate-900);
+  --color-tooltip-text:    var(--slate-50);
+
+  --radius-card:   0.75rem;
+  --radius-button: 0.5rem;
+  --radius-pill:   999px;
+
+  --shadow-card: 0 1px 2px color-mix(in oklch, var(--black) 4%, transparent),
+                 0 4px 12px color-mix(in oklch, var(--black) 6%, transparent);
+}
+
+/* DARK MODE — activated via :has() when #theme-toggle is checked */
+body:has(#theme-toggle:checked) {
+  --color-text:         var(--slate-50);
+  --color-text-muted:   var(--slate-300);
+  --color-bg:           var(--slate-900);
+  --color-card:         var(--slate-700);
+  --color-border:       var(--slate-500);
+  --color-muted:        var(--slate-500);
+  --color-tooltip-bg:   var(--slate-50);
+  --color-tooltip-text: var(--slate-900);
+}

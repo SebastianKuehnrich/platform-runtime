@@ -1,0 +1,77 @@
+/* ============================================================
+   TOOLTIPS.CSS — Anchor Positioning API
+   Diese Datei ist absichtlich fast leer.
+   Die Lecture füllt sie zwischen den Markern.
+
+   Issue, das hier gelöst wird:
+     · Issue #3 — Tooltips auf Profile-Stats ohne JS-Library
+   ============================================================ */
+
+
+/* === BEGIN ISSUE #3 — Anchor Setup === */
+/*  Jede .stat wird zu einem Anker, an dem ein Tooltip hängt.
+    Wir benutzen anchor-name, position-anchor und das
+    ::after-Pseudo-Element für den Tooltip-Inhalt.            */
+
+.stat {
+  anchor-name: --stat;
+  position: relative;
+}
+
+.stat:nth-child(1) { anchor-name: --stat-1; }
+.stat:nth-child(2) { anchor-name: --stat-2; }
+.stat:nth-child(3) { anchor-name: --stat-3; }
+
+.stat[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: anchor(top);
+  left: anchor(center);
+  white-space: nowrap;
+  pointer-events: none;
+  background: var(--color-tooltip-bg);
+  color: var(--color-tooltip-text);
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0.4rem 0.65rem;
+  border-radius: var(--radius-button);
+  box-shadow: var(--shadow-card);
+  opacity: 0;
+  translate: -50% 0px;
+  transition: opacity 0.15s ease, translate 0.15s ease;
+}
+
+.stat:nth-child(1)[data-tooltip]::after { position-anchor: --stat-1; }
+.stat:nth-child(2)[data-tooltip]::after { position-anchor: --stat-2; }
+.stat:nth-child(3)[data-tooltip]::after { position-anchor: --stat-3; }
+
+/* === END ISSUE #3 === */
+
+
+/* === BEGIN ISSUE #3 — Tooltip Visual + Position === */
+/*  Tooltip ist standardmäßig versteckt. Auf :hover und :focus
+    erscheint er, positioniert über dem Anker.                */
+
+.stat:hover::after, .stat:focus-visible::after {
+  opacity: 1;
+  translate: -50% -8px;
+}
+
+/* === END ISSUE #3 === */
+
+
+/* === BEGIN ISSUE #5 — @supports Fallback === */
+/*  Anchor Positioning läuft Mai 2026 nur in Chromium-Browsern.
+    Firefox + Safari sehen einen einfachen, statischen Fallback.
+    Das gehört in @supports, damit moderne Browser den Block
+    sehen, ältere ihn überspringen.                            */
+
+@supports not (anchor-name: --test) {
+  .stat[data-tooltip]::after {
+    bottom: 100%;
+    left: 50%;
+    translate: -50% -8px;
+  }
+}
+
+/* === END ISSUE #5 === */

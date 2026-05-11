@@ -1,0 +1,172 @@
+/* ============================================================
+   BASE.CSS — Reset + Body + Nav + Footer + Buttons
+   Wiederverwendbar auf allen Pages.
+   ============================================================ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* === Site Navigation (auf allen Pages identisch) === */
+.site-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 2rem;
+  background: var(--color-card);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.site-nav .brand {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--color-text);
+  text-decoration: none;
+  letter-spacing: -0.01em;
+}
+
+.site-nav nav {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.site-nav nav a {
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: color 0.15s ease;
+}
+
+.site-nav nav a:hover,
+.site-nav nav a[aria-current="page"] {
+  color: var(--color-brand);
+}
+
+.site-nav nav a:focus-visible {
+  outline: 3px solid var(--color-featured-border);
+  outline-offset: 2px;
+  border-radius: var(--radius-button);
+}
+
+/* === Theme Toggle === */
+.theme-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.theme-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.theme-switch-slider {
+  position: absolute;
+  inset: 0;
+  background: var(--color-border);
+  border-radius: var(--radius-pill);
+  transition: background 0.25s ease;
+}
+
+.theme-switch-slider::before {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 3px;
+  bottom: 3px;
+  background: var(--color-bg);
+  border-radius: 50%;
+  transition: transform 0.25s ease;
+}
+
+.theme-switch input:checked + .theme-switch-slider {
+  background: var(--color-brand);
+}
+
+.theme-switch input:checked + .theme-switch-slider::before {
+  transform: translateX(20px);
+}
+
+.theme-switch input:focus-visible + .theme-switch-slider {
+  outline: 3px solid var(--color-featured-border);
+  outline-offset: 2px;
+}
+
+/* === Main Content === */
+.page {
+  flex: 1;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+}
+
+/* === Buttons (geteilt) === */
+.btn {
+  display: inline-block;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-button);
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-primary {
+  background: var(--color-brand);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--color-button-hover);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.btn-ghost:hover {
+  border-color: var(--color-brand);
+  color: var(--color-brand);
+}
+
+.btn:focus-visible {
+  outline: 3px solid var(--color-featured-border);
+  outline-offset: 2px;
+}
+
+/* === Footer === */
+.site-footer {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  border-top: 1px solid var(--color-border);
+}
