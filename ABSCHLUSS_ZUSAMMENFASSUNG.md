@@ -143,7 +143,24 @@ Diese Zusammenfassung dokumentiert die vollstaendige Bearbeitung beider Hausaufg
 
 ---
 
-## 7. Naechste Schritte (manuell)
+## 7. Optimierungsphase (8 Production-Ready Features)
+
+Nach Abschluss beider Paths wurden 8 zusaetzliche Optimierungen implementiert:
+
+| # | Optimierung | Dateien | Details |
+|---|---|---|---|
+| 1 | Responsive Hamburger-Nav | `base.css`, alle 5 HTML | CSS-only via `:has(.nav-toggle:checked)`, animierte Span-Rotation zu X, `@media (max-width: 640px)` |
+| 2 | @container Queries | `pages.css` | `container-type: inline-size` auf `.feature-card` + `.project-card`, Layout-Switch bei 320px |
+| 3 | Hero Gradient-Text | `effects.css` | `background-clip: text` mit oklch-Gradient, `@property --hero-hue` Animation, radial-gradient Hintergrund |
+| 4 | Login Live-Validation | `pages.css` | `:has(input:valid:not(:placeholder-shown))` fuer Email + Passwort, gruene/rote Border, Button-Opacity reaktiv |
+| 5 | Skip-to-Content Link | `base.css`, alle 5 HTML | `<a href="#main" class="skip-link">`, visuell versteckt bis `:focus`, a11y-Baseline |
+| 6 | SEO Meta-Tags | alle 5 HTML | `<meta description>`, `<meta theme-color>`, Open Graph (index), SVG data-URI Favicon |
+| 7 | Dark-Mode Persistence | alle 5 HTML | `localStorage.setItem('theme-dark')`, Preload-Script verhindert Flash (`dark-preload` Klasse) |
+| 8 | prefers-reduced-motion | `effects.css` | Alle Animationen (Glow, Hero-Pulse) in `@media (prefers-reduced-motion: no-preference)` gewrappt |
+
+---
+
+## 8. Naechste Schritte (manuell)
 
 1. **Brand-Swap Screenshots:** `tokens.css` oeffnen, `--color-brand` aendern, Screenshots machen
 2. **GitHub Repo:** Neues Public Repo erstellen, Remote hinzufuegen, pushen

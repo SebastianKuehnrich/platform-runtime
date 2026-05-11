@@ -46,6 +46,14 @@
   border-radius: var(--radius-card);
   padding: 1.5rem;
   box-shadow: var(--shadow-card);
+  container-type: inline-size;
+  container-name: feature;
+  transition: border-color 0.15s ease, transform 0.2s ease;
+}
+
+.feature-card:hover {
+  border-color: var(--color-featured-border);
+  transform: translateY(-2px);
 }
 
 .feature-card h3 {
@@ -57,6 +65,19 @@
 .feature-card p {
   color: var(--color-text-muted);
   font-size: 0.95rem;
+}
+
+@container feature (min-width: 320px) {
+  .feature-card {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .feature-card h3 {
+    margin-bottom: 0;
+    white-space: nowrap;
+  }
 }
 
 /* ========== PRICING ========== */
@@ -296,6 +317,27 @@
   cursor: not-allowed;
 }
 
+.field:has(input[type="email"]:valid:not(:placeholder-shown)) input {
+  border-color: #22c55e;
+  box-shadow: 0 0 0 3px color-mix(in oklch, #22c55e 12%, transparent);
+}
+
+.field:has(input[type="email"]:invalid:not(:placeholder-shown)) input {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px color-mix(in oklch, #ef4444 12%, transparent);
+}
+
+.field:has(input[type="password"]:valid:not(:placeholder-shown)) input[type="password"] {
+  border-color: #22c55e;
+  box-shadow: 0 0 0 3px color-mix(in oklch, #22c55e 12%, transparent);
+}
+
+.login-form:has(input[type="email"]:valid:not(:placeholder-shown)):has(input[type="password"]:valid:not(:placeholder-shown)) .btn {
+  opacity: 1;
+  cursor: pointer;
+  box-shadow: 0 0 0 3px var(--color-featured-tint);
+}
+
 .forgot {
   text-align: center;
   font-size: 0.85rem;
@@ -339,7 +381,9 @@
   grid-template-rows: subgrid;
   gap: 0.5rem;
   box-shadow: var(--shadow-card);
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, transform 0.2s ease;
+  container-type: inline-size;
+  container-name: project;
 }
 
 .project-card:hover {

@@ -6,16 +6,16 @@ Kein Framework, kein Build-Step, fuenf Pages, ein Token-System.
 Production-tauglich mit a11y-aware Animations.
 
 ## Pages
-- **Home** — Hero + Feature-Cards
+- **Home** — Hero mit Gradient-Text + Feature-Cards mit @container
 - **Pricing** — Subgrid-aligned Plan-Cards, Featured-Plan mit @property-Glow
 - **Profile** — Stat-Cards mit Anchor-Positioned-Tooltips inkl. position-try
 - **Projects** — Portfolio mit Projekt-Cards, Subgrid-Layout, @scope-Isolation
-- **Login** — Form mit :has()-basierter Email-Validation
+- **Login** — Form mit :has()-basierter Email + Passwort Live-Validation
 
 ## Modern CSS Features (W1)
 - 3-Layer Token-System (Primitives → Semantic → Component)
 - `:has()` fuer State-Detection ohne JavaScript
-- `@container` fuer Component-Level-Responsiveness
+- `@container` fuer Component-Level-Responsiveness (Feature-Cards + Project-Cards)
 - `color-mix(in oklch)` fuer brand-derived Tokens
 - View Transitions fuer smooth Page-Switches
 - Subgrid fuer Card-Row-Alignment
@@ -27,6 +27,16 @@ Production-tauglich mit a11y-aware Animations.
 - `@scope` fuer Component-Style-Isolation
 - `position-try` fuer Edge-Aware Tooltip-Flipping
 - `prefers-reduced-motion`-aware Animations (a11y-baseline)
+
+## Optimierungen (Production-Ready)
+- **Responsive Hamburger-Nav** — CSS-only via `:has(.nav-toggle:checked)`, animierte X-Transformation
+- **@container Queries** — Feature-Cards + Project-Cards reagieren auf Component-Breite
+- **Hero Gradient-Text** — `background-clip: text` mit oklch-Gradient, radial-gradient Hintergrund
+- **Login Live-Validation** — `:has()` erkennt valid/invalid Email + Passwort, Button-Opacity reaktiv
+- **Skip-to-Content Link** — a11y Skip-Link auf allen 5 Pages
+- **SEO Meta-Tags** — `<meta description>`, Open Graph, `<meta theme-color>`, SVG Favicon
+- **Dark-Mode Persistence** — localStorage speichert Theme-Praeferenz seitenuebergreifend
+- **prefers-reduced-motion Wrapping** — Alle Animationen in `no-preference`-Guard
 
 ## MicroSims (Interaktive Lern-Tools)
 8 interaktive HTML-Simulationen im `/microsims/`-Ordner:
@@ -55,22 +65,23 @@ Anchor-Positioning braucht `@supports`-Wrapper fuer Firefox-Support.
 ## Dateistruktur
 ```
 sebastian-platform-runtime/
-├── index.html              Home-Page
+├── index.html              Home mit Hero-Gradient + Feature-Cards
 ├── pricing.html            Pricing mit Subgrid + @property Glow
 ├── profile.html            Profile mit Anchor-Tooltips
 ├── projects.html           Portfolio mit Subgrid + @scope
-├── login.html              Login mit :has()-Validation
+├── login.html              Login mit :has()-Live-Validation
 ├── tokens.css              3-Layer Token-System
-├── base.css                Reset + Nav + Buttons + Footer
-├── pages.css               Page-spezifische Styles
+├── base.css                Reset + Nav + Hamburger + Skip-Link + Footer
+├── pages.css               Page-Styles + @container Queries
 ├── transitions.css         View Transitions + reduced-motion
 ├── tooltips.css            Anchor Positioning + position-try
-├── effects.css             @property Glow + @scope Isolation
+├── effects.css             @property Glow + @scope + Hero-Gradient
 ├── microsims/              8 interaktive MicroSims
 ├── screenshots/            Brand-Swap-Test Screenshots
 ├── REFLECTION.md           3 Reflexionsfragen
 ├── DEVTOOLS_FINDINGS.md    Computed-Tab Analyse
 ├── BRAND_SWAP_TEST.md      Brand-Swap Anleitung
+├── ABSCHLUSS_ZUSAMMENFASSUNG.md  Finale Zusammenfassung
 └── README.md               Diese Datei
 ```
 

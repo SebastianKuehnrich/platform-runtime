@@ -11,6 +11,12 @@
   inherits: false;
 }
 
+@property --hero-hue {
+  syntax: '<angle>';
+  initial-value: 239deg;
+  inherits: false;
+}
+
 .plan-featured {
   position: relative;
 }
@@ -28,11 +34,57 @@
     transparent 70%,
     var(--color-brand) 100%
   );
-  animation: pro-glow-rotate 6s linear infinite;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .plan-featured::before {
+    animation: pro-glow-rotate 6s linear infinite;
+  }
 }
 
 @keyframes pro-glow-rotate {
   to { --pro-glow-angle: 360deg; }
+}
+
+/* === Hero Visual Enhancement === */
+
+.page-home .hero {
+  position: relative;
+}
+
+.page-home .hero::before {
+  content: '';
+  position: absolute;
+  inset: -2rem;
+  z-index: -1;
+  background: radial-gradient(
+    ellipse 60% 50% at 50% 40%,
+    color-mix(in oklch, var(--color-brand) 6%, transparent) 0%,
+    transparent 70%
+  );
+  border-radius: 50%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .page-home .hero::before {
+    animation: hero-pulse 8s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes hero-pulse {
+  from { opacity: 0.6; transform: scale(1); }
+  to { opacity: 1; transform: scale(1.05); }
+}
+
+.page-home h1 {
+  background: linear-gradient(
+    135deg,
+    var(--color-text) 0%,
+    var(--color-brand) 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* === A2: @scope Component Isolation === */

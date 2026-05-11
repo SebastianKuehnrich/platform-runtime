@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Pricing-Plaene — Sebastian K. Platform Runtime Showcase.">
+  <meta name="theme-color" content="#6366f1">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>S</text></svg>">
   <title>Sebastian — Pricing</title>
   <link rel="stylesheet" href="tokens.css">
   <link rel="stylesheet" href="base.css">
@@ -10,10 +13,17 @@
   <link rel="stylesheet" href="transitions.css">
   <link rel="stylesheet" href="tooltips.css">
   <link rel="stylesheet" href="effects.css">
+  <script>if(localStorage.getItem('theme-dark')==='true'){document.documentElement.classList.add('dark-preload')}</script>
 </head>
 <body>
+  <a href="#main" class="skip-link">Zum Inhalt springen</a>
+
   <header class="site-nav">
     <a href="index.html" class="brand">Sebastian — Platform Runtime</a>
+    <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-hidden="true">
+    <label for="nav-toggle" class="hamburger" aria-label="Navigation oeffnen">
+      <span></span><span></span><span></span>
+    </label>
     <nav>
       <a href="index.html">Home</a>
       <a href="pricing.html" aria-current="page">Pricing</a>
@@ -27,7 +37,7 @@
     </label>
   </header>
 
-  <main class="page page-pricing">
+  <main class="page page-pricing" id="main">
     <h1>Waehle deinen Plan</h1>
     <p class="lead">Drei Plaene. Ein Token-System. Brand-Wechsel = eine Zeile.</p>
 
@@ -79,5 +89,11 @@
   <footer class="site-footer">
     <p>Sebastian K. · Morphos Advanced CSS Cohort · Mai 2026</p>
   </footer>
+
+  <script>
+    const toggle = document.getElementById('theme-toggle');
+    if (localStorage.getItem('theme-dark') === 'true') toggle.checked = true;
+    toggle.addEventListener('change', () => localStorage.setItem('theme-dark', toggle.checked));
+  </script>
 </body>
 </html>
