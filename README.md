@@ -12,9 +12,9 @@ Kein Framework, kein Build-Step — fuenf Pages, ein Token-System.
 | Page | Beschreibung | Kern-Features |
 |------|-------------|---------------|
 | **Home** | Hero mit Gradient-Text, Feature-Cards | `@container`, `background-clip: text`, `@property` |
-| **Pricing** | Drei Plan-Cards mit Featured-Glow | Subgrid, `@property` Conic-Gradient, `color-mix()` |
+| **Pricing** | Drei Plan-Cards, Pro mit Knockout-Glow | Subgrid, 3-Layer Glow-Card, `color-mix()` |
 | **Profile** | Stats mit Anchor-Tooltips | Anchor Positioning, `position-try-fallbacks` |
-| **Projects** | Portfolio-Grid mit Glow-Cards | Subgrid, `@scope`, `@container` |
+| **Projects** | Portfolio-Grid mit Knockout-Glow-Cards | 3-Layer Glow-Card, `@scope`, `@container` |
 | **Login** | Formular mit Live-Validation | `:has()` Email/Passwort-Validation, reaktiver Button |
 
 ---
@@ -38,8 +38,18 @@ Brand-Swap = eine Zeile in `tokens.css` aendern. Siehe [BRAND_SWAP_TEST.md](BRAN
 - Anchor Positioning — JS-freie Tooltips mit Edge-Detection
 - `@supports` — Progressive Enhancement
 
+### Glow-Card (Warmup-Technik)
+3-Layer-Stack mit Knockout-Text via `mix-blend-mode: multiply`:
+```
+z: -1  ::before          Rotierender Border-Glow (conic-gradient)
+z:  0  .glow-card__beam  Weisse Basis + farbiger Strahl
+z:  0  .glow-card__surface  Dunkle Card + weisser Text → Knockout
+```
+4 `@property`-Deklarationen: `--gradient-angle`, `--glow-hue`, `--glow-spread`, `--beam-angle`
+3 Animationen: `rotate-glow` (4s), `rotate-beam` (4s), `shift-hue` (8s)
+
 ### Production Layer
-- `@property` — Typed Custom Properties fuer animierte Conic-Gradients
+- `@property` — 5 Typed Custom Properties fuer animierte Gradients + Glow
 - `@scope` — Component-Style-Isolation ohne Build-Step
 - `position-try-fallbacks` — Edge-Aware Tooltip-Flipping
 - `prefers-reduced-motion` — Alle Animationen in `no-preference`-Guard
