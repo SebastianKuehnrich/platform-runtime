@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MicroSim — DevTools Annotated Tour</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    .container { max-width: 800px; margin: 0 auto; }
+    h1 { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.5rem; }
+    .subtitle { color: #94a3b8; margin-bottom: 2rem; }
+    .devtools-mock {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+    .dt-toolbar {
+      display: flex;
+      background: #0f172a;
+      border-bottom: 1px solid #334155;
+      padding: 0;
+    }
+    .dt-tab {
+      padding: 0.6rem 1rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #64748b;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      position: relative;
+    }
+    .dt-tab:hover { color: #94a3b8; }
+    .dt-tab.active { color: #6366f1; border-bottom-color: #6366f1; }
+    .dt-tab .hotspot {
+      position: absolute;
+      top: -4px; right: -4px;
+      width: 8px; height: 8px;
+      background: #f59e0b;
+      border-radius: 50%;
+      animation: pulse 2s ease infinite;
+    }
+    @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.5; } }
+    .dt-content {
+      padding: 1.25rem;
+      min-height: 200px;
+      display: none;
+    }
+    .dt-content.active { display: block; }
+    .dt-content h3 { font-size: 1rem; margin-bottom: 0.75rem; color: #e2e8f0; }
+    .dt-content p { font-size: 0.85rem; color: #94a3b8; line-height: 1.6; margin-bottom: 0.5rem; }
+    .dt-content code {
+      background: #0f172a; padding: 0.15rem 0.4rem; border-radius: 0.25rem;
+      font-size: 0.8rem; color: #c7d2fe;
+    }
+    .property-row {
+      display: grid;
+      grid-template-columns: 160px 1fr auto;
+      gap: 0.5rem;
+      padding: 0.4rem 0.6rem;
+      border-bottom: 1px solid #1e293b;
+      font-size: 0.8rem;
+      font-family: 'Fira Code', monospace;
+      align-items: center;
+    }
+    .property-row:nth-child(odd) { background: rgba(30, 41, 59, 0.5); }
+    .prop-name { color: #94a3b8; }
+    .prop-value { color: #c7d2fe; }
+    .prop-source { color: #64748b; font-size: 0.7rem; }
+    .quiz-section {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+    }
+    .quiz-section h2 { font-size: 1.1rem; margin-bottom: 1.25rem; }
+    .quiz-q {
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background: #0f172a;
+      border-radius: 0.5rem;
+      border: 1px solid #334155;
+    }
+    .quiz-q p { font-size: 0.9rem; margin-bottom: 0.75rem; }
+    .quiz-options { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .quiz-btn {
+      padding: 0.4rem 0.8rem;
+      border: 1px solid #334155;
+      border-radius: 0.375rem;
+      background: #1e293b;
+      color: #e2e8f0;
+      font: inherit;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    .quiz-btn:hover { border-color: #6366f1; }
+    .quiz-btn.correct { background: #166534; border-color: #22c55e; color: #bbf7d0; }
+    .quiz-btn.wrong { background: #7f1d1d; border-color: #ef4444; color: #fecaca; }
+    .quiz-feedback {
+      margin-top: 0.5rem;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>DevTools Annotated Tour</h1>
+    <p class="subtitle">Klicke auf die Tabs, um jeden Bereich der DevTools kennenzulernen.</p>
+
+    <div class="devtools-mock">
+      <div class="dt-toolbar" id="toolbar">
+        <div class="dt-tab active" data-tab="elements">Elements <span class="hotspot"></span></div>
+        <div class="dt-tab" data-tab="computed">Computed <span class="hotspot"></span></div>
+        <div class="dt-tab" data-tab="layout">Layout <span class="hotspot"></span></div>
+        <div class="dt-tab" data-tab="network">Network</div>
+        <div class="dt-tab" data-tab="console">Console</div>
+      </div>
+
+      <div class="dt-content active" id="tab-elements">
+        <h3>Elements-Tab</h3>
+        <p>Zeigt den DOM-Tree links und CSS-Regeln rechts. Hier siehst du <strong>geschriebene</strong> Regeln — nicht die berechneten Werte.</p>
+        <p>Selektiere ein Element im DOM, und rechts erscheinen alle CSS-Regeln, die es matchen, sortiert nach Specificity.</p>
+        <p><strong>Tipp:</strong> Durchgestrichene Regeln wurden von einer staerkeren Regel ueberschrieben.</p>
+      </div>
+
+      <div class="dt-content" id="tab-computed">
+        <h3>Computed-Tab — Der Senior-Move</h3>
+        <p>Zeigt den <strong>finalen berechneten Wert</strong> jeder CSS-Property. Nicht die Regel — den Wert.</p>
+        <p>Beispiel: <code>.plan</code> auf der Pricing-Page:</p>
+        <div style="margin-top:0.75rem;">
+          <div class="property-row"><span class="prop-name">padding</span><span class="prop-value">32px</span><span class="prop-source">.plan { padding: 2rem }</span></div>
+          <div class="property-row"><span class="prop-name">background-color</span><span class="prop-value">rgb(255, 255, 255)</span><span class="prop-source">.plan { background: var(--color-card) }</span></div>
+          <div class="property-row"><span class="prop-name">border-color</span><span class="prop-value">rgb(226, 232, 240)</span><span class="prop-source">.plan { border: 1px solid var(--color-border) }</span></div>
+          <div class="property-row"><span class="prop-name">border-radius</span><span class="prop-value">12px</span><span class="prop-source">.plan { border-radius: var(--radius-card) }</span></div>
+          <div class="property-row"><span class="prop-name">box-sizing</span><span class="prop-value">border-box</span><span class="prop-source">* { box-sizing: border-box }</span></div>
+        </div>
+      </div>
+
+      <div class="dt-content" id="tab-layout">
+        <h3>Layout-Tab</h3>
+        <p>Zeigt Grid- und Flexbox-Overlays. Klicke auf einen Grid-Container und aktiviere "Show grid".</p>
+        <p>Die Pricing-Grid zeigt dir die Subgrid-Rows: <code>grid-template-rows: subgrid</code> auf <code>.plan</code>.</p>
+        <p><strong>Tipp:</strong> Die farbigen Overlays zeigen Grid-Lines und Gap-Bereiche direkt auf der Page.</p>
+      </div>
+
+      <div class="dt-content" id="tab-network">
+        <h3>Network-Tab</h3>
+        <p>Zeigt jeden HTTP-Request: CSS-Files, Bilder, Fonts, API-Calls.</p>
+        <p>Wenn ein CSS-File 404 wirft, siehst du es hier in rot. Filter nach "CSS" um nur Stylesheets zu sehen.</p>
+      </div>
+
+      <div class="dt-content" id="tab-console">
+        <h3>Console-Tab</h3>
+        <p>Fuer <code>@supports</code>-Tests: <code>CSS.supports('anchor-name', '--test')</code> gibt true/false.</p>
+        <p>Zeigt auch JavaScript-Errors und Framework-Logs.</p>
+      </div>
+    </div>
+
+    <div class="quiz-section">
+      <h2>Quick Quiz — "Wo wuerdest du nachschauen?"</h2>
+
+      <div class="quiz-q" id="q1">
+        <p>Dein <code>var(--color-muted)</code> zeigt die falsche Farbe. Wo schaust du nach?</p>
+        <div class="quiz-options">
+          <button class="quiz-btn" onclick="answer(this,'q1',false)">Elements</button>
+          <button class="quiz-btn" onclick="answer(this,'q1',true)">Computed</button>
+          <button class="quiz-btn" onclick="answer(this,'q1',false)">Network</button>
+        </div>
+        <div class="quiz-feedback" id="fb-q1">Computed-Tab zeigt den tatsaechlich berechneten Farbwert — nicht die Variable, sondern das Ergebnis.</div>
+      </div>
+
+      <div class="quiz-q" id="q2">
+        <p>Dein CSS-File scheint nicht geladen zu werden. Wo checkst du das?</p>
+        <div class="quiz-options">
+          <button class="quiz-btn" onclick="answer(this,'q2',false)">Computed</button>
+          <button class="quiz-btn" onclick="answer(this,'q2',false)">Layout</button>
+          <button class="quiz-btn" onclick="answer(this,'q2',true)">Network</button>
+        </div>
+        <div class="quiz-feedback" id="fb-q2">Network-Tab zeigt HTTP-Status-Codes. Ein 404 bedeutet: File nicht gefunden.</div>
+      </div>
+
+      <div class="quiz-q" id="q3">
+        <p>Die Pricing-Cards sind vertikal nicht aligned. Wo debuggst du das Grid?</p>
+        <div class="quiz-options">
+          <button class="quiz-btn" onclick="answer(this,'q3',true)">Layout</button>
+          <button class="quiz-btn" onclick="answer(this,'q3',false)">Console</button>
+          <button class="quiz-btn" onclick="answer(this,'q3',false)">Elements</button>
+        </div>
+        <div class="quiz-feedback" id="fb-q3">Layout-Tab zeigt Grid-Overlays und Subgrid-Rows direkt auf der Page.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('toolbar').addEventListener('click', (e) => {
+      const tab = e.target.closest('.dt-tab');
+      if (!tab) return;
+      document.querySelectorAll('.dt-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.dt-content').forEach(c => c.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+    });
+
+    function answer(btn, qId, correct) {
+      const q = document.getElementById(qId);
+      q.querySelectorAll('.quiz-btn').forEach(b => {
+        b.disabled = true;
+        b.style.opacity = '0.6';
+      });
+      btn.style.opacity = '1';
+      btn.className = 'quiz-btn ' + (correct ? 'correct' : 'wrong');
+      document.getElementById('fb-' + qId).style.display = 'block';
+    }
+  </script>
+</body>
+</html>

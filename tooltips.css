@@ -39,6 +39,9 @@
   opacity: 0;
   translate: -50% 0px;
   transition: opacity 0.15s ease, translate 0.15s ease;
+
+  /* A3: position-try — Edge-Detection fuer Viewport-Raender */
+  position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
 }
 
 .stat:nth-child(1)[data-tooltip]::after { position-anchor: --stat-1; }

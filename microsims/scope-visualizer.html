@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MicroSim — @scope Visualizer</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0f172a; color: #f8fafc;
+      min-height: 100vh; padding: 2rem;
+    }
+    .container { max-width: 800px; margin: 0 auto; }
+    h1 { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.5rem; }
+    .subtitle { color: #94a3b8; margin-bottom: 2rem; }
+    .toggle-bar {
+      display: flex; gap: 1rem; margin-bottom: 2rem; align-items: center;
+    }
+    .toggle-btn {
+      padding: 0.6rem 1.25rem; border: 1px solid #334155; border-radius: 0.5rem;
+      background: #1e293b; color: #94a3b8; font: inherit; font-weight: 600;
+      font-size: 0.85rem; cursor: pointer;
+    }
+    .toggle-btn.active { background: #6366f1; color: white; border-color: #6366f1; }
+    .scope-label {
+      font-size: 0.85rem; color: #64748b; font-family: 'Fira Code', monospace;
+    }
+    .demo-page {
+      background: #1e293b; border: 1px solid #334155; border-radius: 0.75rem;
+      padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;
+    }
+    .demo-nav {
+      border: 2px solid #334155; border-radius: 0.5rem; padding: 1rem;
+      position: relative;
+    }
+    .demo-nav.scoped { border-color: #22c55e; }
+    .nav-label {
+      position: absolute; top: -10px; left: 12px; background: #1e293b;
+      padding: 0 0.5rem; font-size: 0.7rem; font-weight: 700; color: #64748b;
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .demo-nav.scoped .nav-label { color: #22c55e; }
+    .demo-nav ul {
+      list-style: none; display: flex; gap: 1rem;
+    }
+    .demo-nav a {
+      text-decoration: none; font-size: 0.9rem; font-weight: 600;
+      padding: 0.3rem 0.6rem; border-radius: 0.25rem;
+      transition: color 0.15s ease, background 0.15s ease;
+    }
+    .site-nav-demo a { color: #94a3b8; }
+    .site-nav-demo.styled a { color: #6366f1; }
+    .footer-nav-demo a { color: #94a3b8; }
+    .footer-nav-demo.styled a { color: #6366f1; }
+    .dropdown-zone {
+      margin-top: 0.75rem; padding: 0.75rem; background: #0f172a;
+      border: 1px dashed #475569; border-radius: 0.375rem;
+    }
+    .dropdown-zone a { color: #94a3b8 !important; font-size: 0.8rem; }
+    .dropdown-zone.scoped-to a { color: #94a3b8 !important; }
+    .dropdown-label {
+      font-size: 0.65rem; color: #475569; text-transform: uppercase;
+      margin-bottom: 0.4rem; display: block;
+    }
+    .explanation {
+      background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem;
+      padding: 1rem; font-size: 0.85rem; color: #94a3b8; line-height: 1.6;
+    }
+    .explanation code { background: #1e293b; padding: 0.1rem 0.35rem; border-radius: 0.25rem; color: #c7d2fe; }
+    .to-slider {
+      margin-top: 1.5rem; display: flex; align-items: center; gap: 1rem;
+    }
+    .to-slider label { font-size: 0.85rem; color: #94a3b8; font-weight: 600; }
+    .to-slider input { accent-color: #6366f1; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>@scope Visualizer</h1>
+    <p class="subtitle">Schalte @scope an/aus und beobachte, welche Links gestyled werden.</p>
+
+    <div class="toggle-bar">
+      <button class="toggle-btn" id="btnOff" onclick="setScope(false)">@scope OFF</button>
+      <button class="toggle-btn active" id="btnOn" onclick="setScope(true)">@scope ON</button>
+      <span class="scope-label" id="scopeCode">@scope (.site-nav) { a { color: brand } }</span>
+    </div>
+
+    <div class="demo-page">
+      <div class="demo-nav site-nav-demo" id="siteNav">
+        <span class="nav-label">Site-Nav (.site-nav)</span>
+        <ul>
+          <li><a href="#">Home</a></li>
+          <li><a href="#">Pricing</a></li>
+          <li><a href="#">Profile</a></li>
+        </ul>
+        <div class="dropdown-zone" id="dropdownZone">
+          <span class="dropdown-label">Dropdown (.dropdown-menu)</span>
+          <a href="#">Settings</a> &nbsp; <a href="#">Logout</a>
+        </div>
+      </div>
+
+      <div class="demo-nav footer-nav-demo" id="footerNav">
+        <span class="nav-label">Footer-Nav (nav)</span>
+        <ul>
+          <li><a href="#">Impressum</a></li>
+          <li><a href="#">Datenschutz</a></li>
+          <li><a href="#">Kontakt</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="to-slider">
+      <label>to-Klausel aktiv:</label>
+      <input type="checkbox" id="toClause" onchange="updateScope()">
+      <span class="scope-label" id="toLabel" style="color:#475569;">@scope (.site-nav) to (.dropdown-menu)</span>
+    </div>
+
+    <div class="explanation" id="explanation" style="margin-top:1.5rem;"></div>
+  </div>
+
+  <script>
+    let scopeOn = true;
+    let toActive = false;
+
+    function setScope(on) {
+      scopeOn = on;
+      document.getElementById('btnOff').className = 'toggle-btn' + (!on ? ' active' : '');
+      document.getElementById('btnOn').className = 'toggle-btn' + (on ? ' active' : '');
+      updateScope();
+    }
+
+    function updateScope() {
+      toActive = document.getElementById('toClause').checked;
+      const siteNav = document.getElementById('siteNav');
+      const footerNav = document.getElementById('footerNav');
+      const dropdown = document.getElementById('dropdownZone');
+      const codeEl = document.getElementById('scopeCode');
+      const toLabel = document.getElementById('toLabel');
+      const expl = document.getElementById('explanation');
+
+      siteNav.classList.remove('styled', 'scoped');
+      footerNav.classList.remove('styled');
+      dropdown.classList.remove('scoped-to');
+
+      if (!scopeOn) {
+        siteNav.classList.add('styled');
+        footerNav.classList.add('styled');
+        codeEl.textContent = 'nav a { color: brand } — trifft ALLE nav-Elemente';
+        expl.innerHTML = 'Ohne <code>@scope</code> trifft <code>nav a { color: brand }</code> <strong>beide</strong> Navigationen — Site-Nav und Footer-Nav. Style-Leakage!';
+      } else if (!toActive) {
+        siteNav.classList.add('styled', 'scoped');
+        codeEl.textContent = '@scope (.site-nav) { a { color: brand } }';
+        expl.innerHTML = 'Mit <code>@scope (.site-nav)</code> trifft die Regel <strong>nur</strong> Links innerhalb von <code>.site-nav</code>. Footer-Nav bleibt ungestyled. Aber: die Dropdown-Links INNERHALB der Site-Nav werden auch gestyled.';
+      } else {
+        siteNav.classList.add('styled', 'scoped');
+        dropdown.classList.add('scoped-to');
+        codeEl.textContent = '@scope (.site-nav) to (.dropdown-menu) { a { color: brand } }';
+        toLabel.style.color = '#22c55e';
+        expl.innerHTML = 'Mit <code>@scope (.site-nav) to (.dropdown-menu)</code> stoppt die Regel bei <code>.dropdown-menu</code>. Die Dropdown-Links haben ihre <strong>eigenen</strong> Styles — die Site-Nav-Regel greift dort nicht durch. Das ist Component-Isolation auf Browser-Ebene.';
+      }
+
+      if (!toActive) toLabel.style.color = '#475569';
+    }
+
+    updateScope();
+  </script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+/* ============================================================
+   EFFECTS.CSS — @property-driven Animations + @scope Isolation
+   Path B Advanced Topics: A1 (Conic Glow) + A2 (@scope)
+   ============================================================ */
+
+/* === A1: @property Animated Conic-Gradient Border === */
+
+@property --pro-glow-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.plan-featured {
+  position: relative;
+}
+
+.plan-featured::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  z-index: -1;
+  border-radius: var(--radius-card);
+  background: conic-gradient(
+    from var(--pro-glow-angle),
+    var(--color-brand) 0%,
+    transparent 30%,
+    transparent 70%,
+    var(--color-brand) 100%
+  );
+  animation: pro-glow-rotate 6s linear infinite;
+}
+
+@keyframes pro-glow-rotate {
+  to { --pro-glow-angle: 360deg; }
+}
+
+/* === A2: @scope Component Isolation === */
+
+@scope (.glow-card) {
+  :scope {
+    position: relative;
+    overflow: hidden;
+  }
+
+  :scope::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      color-mix(in oklch, var(--color-brand) 15%, transparent) 0%,
+      transparent 60%
+    );
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  :scope:hover::after {
+    opacity: 1;
+  }
+}

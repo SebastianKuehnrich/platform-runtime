@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MicroSim — Specificity Calculator</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 2rem;
+    }
+    .container {
+      width: 100%;
+      max-width: 720px;
+    }
+    h1 { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.5rem; }
+    .subtitle { color: #94a3b8; margin-bottom: 2rem; }
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .selector-input {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+    .selector-input label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #94a3b8;
+      min-width: 80px;
+    }
+    .selector-input input {
+      flex: 1;
+      padding: 0.65rem 0.8rem;
+      border: 1px solid #334155;
+      border-radius: 0.5rem;
+      background: #1e293b;
+      color: #f8fafc;
+      font: inherit;
+      font-size: 1rem;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+    }
+    .selector-input input:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+    .results {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .result-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+    }
+    .result-card h3 {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      margin-bottom: 0.75rem;
+    }
+    .specificity-display {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .spec-digit {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 0.5rem;
+      font-size: 1.5rem;
+      font-weight: 800;
+      font-family: 'Fira Code', monospace;
+    }
+    .spec-inline { background: #dc2626; color: white; }
+    .spec-id { background: #f59e0b; color: #0f172a; }
+    .spec-class { background: #22c55e; color: #0f172a; }
+    .spec-type { background: #3b82f6; color: white; }
+    .spec-labels {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .spec-labels span {
+      width: 48px;
+      text-align: center;
+      font-size: 0.65rem;
+      color: #64748b;
+    }
+    .breakdown {
+      margin-top: 0.75rem;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      line-height: 1.6;
+    }
+    .winner-banner {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      text-align: center;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+    .winner-banner.tie { background: linear-gradient(135deg, #334155, #475569); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Specificity Calculator</h1>
+    <p class="subtitle">Tippe zwei Selektoren ein und vergleiche ihre Specificity.</p>
+
+    <div class="input-group">
+      <div class="selector-input">
+        <label>Selektor A</label>
+        <input type="text" id="selectorA" value=".card .btn" placeholder="z.B. .card .btn">
+      </div>
+      <div class="selector-input">
+        <label>Selektor B</label>
+        <input type="text" id="selectorB" value="#submit" placeholder="z.B. #submit">
+      </div>
+    </div>
+
+    <div class="results">
+      <div class="result-card" id="resultA"></div>
+      <div class="result-card" id="resultB"></div>
+    </div>
+
+    <div class="winner-banner" id="winner"></div>
+  </div>
+
+  <script>
+    function calculateSpecificity(selector) {
+      let inline = 0, ids = 0, classes = 0, types = 0;
+      const breakdown = [];
+      const cleaned = selector.trim();
+      if (!cleaned) return { scores: [0, 0, 0, 0], breakdown: [] };
+
+      const withoutPseudoElements = cleaned.replace(/::(before|after|first-line|first-letter|marker|placeholder|selection|backdrop|view-transition-old|view-transition-new|view-transition-group|view-transition-image-pair)\b/gi, (m) => {
+        types++;
+        breakdown.push({ part: m, category: 'pseudo-element' });
+        return '';
+      });
+
+      const withoutAttrs = withoutPseudoElements.replace(/\[[^\]]*\]/g, (m) => {
+        classes++;
+        breakdown.push({ part: m, category: 'attribute' });
+        return '';
+      });
+
+      const withoutPseudoClasses = withoutAttrs.replace(/:(?:has|is|where|not|nth-child|nth-of-type|first-child|last-child|hover|focus|focus-visible|focus-within|active|visited|checked|disabled|enabled|required|valid|invalid|placeholder-shown|root|scope)\([^)]*\)/gi, (m) => {
+        if (m.startsWith(':where')) return '';
+        classes++;
+        breakdown.push({ part: m, category: 'pseudo-class' });
+        return '';
+      });
+
+      const withoutSimplePseudo = withoutPseudoClasses.replace(/:(?:hover|focus|focus-visible|focus-within|active|visited|checked|disabled|enabled|required|valid|invalid|placeholder-shown|first-child|last-child|root|scope)\b/gi, (m) => {
+        classes++;
+        breakdown.push({ part: m, category: 'pseudo-class' });
+        return '';
+      });
+
+      const idMatches = withoutSimplePseudo.match(/#[\w-]+/g);
+      if (idMatches) {
+        ids += idMatches.length;
+        idMatches.forEach(m => breakdown.push({ part: m, category: 'id' }));
+      }
+
+      const classMatches = withoutSimplePseudo.match(/\.[\w-]+/g);
+      if (classMatches) {
+        classes += classMatches.length;
+        classMatches.forEach(m => breakdown.push({ part: m, category: 'class' }));
+      }
+
+      const remaining = withoutSimplePseudo.replace(/#[\w-]+/g, '').replace(/\.[\w-]+/g, '');
+      const typeMatches = remaining.match(/(?:^|[\s>+~])[\w][\w-]*/g);
+      if (typeMatches) {
+        types += typeMatches.length;
+        typeMatches.forEach(m => breakdown.push({ part: m.trim(), category: 'type' }));
+      }
+
+      return { scores: [inline, ids, classes, types], breakdown };
+    }
+
+    function compareSpecificity(a, b) {
+      for (let i = 0; i < 4; i++) {
+        if (a[i] > b[i]) return 1;
+        if (a[i] < b[i]) return -1;
+      }
+      return 0;
+    }
+
+    function renderResult(containerId, label, selector, data) {
+      const el = document.getElementById(containerId);
+      const breakdownHtml = data.breakdown.length
+        ? data.breakdown.map(b => `<span>${b.part} → ${b.category}</span>`).join('<br>')
+        : '<span>Leer</span>';
+      el.innerHTML = `
+        <h3>${label}: <code style="color:#e2e8f0">${selector || '(leer)'}</code></h3>
+        <div class="specificity-display">
+          <div class="spec-digit spec-inline">${data.scores[0]}</div>
+          <div class="spec-digit spec-id">${data.scores[1]}</div>
+          <div class="spec-digit spec-class">${data.scores[2]}</div>
+          <div class="spec-digit spec-type">${data.scores[3]}</div>
+        </div>
+        <div class="spec-labels">
+          <span>inline</span><span>IDs</span><span>classes</span><span>types</span>
+        </div>
+        <div class="breakdown">${breakdownHtml}</div>
+      `;
+    }
+
+    function update() {
+      const sA = document.getElementById('selectorA').value;
+      const sB = document.getElementById('selectorB').value;
+      const dataA = calculateSpecificity(sA);
+      const dataB = calculateSpecificity(sB);
+
+      renderResult('resultA', 'Selektor A', sA, dataA);
+      renderResult('resultB', 'Selektor B', sB, dataB);
+
+      const cmp = compareSpecificity(dataA.scores, dataB.scores);
+      const banner = document.getElementById('winner');
+      if (cmp > 0) {
+        banner.textContent = 'Selektor A gewinnt!';
+        banner.className = 'winner-banner';
+      } else if (cmp < 0) {
+        banner.textContent = 'Selektor B gewinnt!';
+        banner.className = 'winner-banner';
+      } else {
+        banner.textContent = 'Gleichstand — Reihenfolge im Stylesheet entscheidet.';
+        banner.className = 'winner-banner tie';
+      }
+    }
+
+    document.getElementById('selectorA').addEventListener('input', update);
+    document.getElementById('selectorB').addEventListener('input', update);
+    update();
+  </script>
+</body>
+</html>

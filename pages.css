@@ -87,6 +87,12 @@
      in jeder Card gleich hoch. Code in der Lecture, Block B. */
 }
 
+/* Box-Model-Frage: was waere die tatsaechliche Breite einer .plan-Card,
+   wenn box-sizing NICHT border-box waere?
+   Antwort: Bei content-box waere die Breite = content-width + 2*padding(2rem=32px) + 2*border(1px)
+   = content-width + 64px + 2px = content-width + 66px.
+   Da .plan in einem Grid mit minmax(260px, 1fr) liegt, waere die Card bei 260px Content
+   tatsaechlich 260 + 66 = 326px breit — das Grid wuerde ueberlaufen. */
 .plan {
   background: var(--color-card);
   border: 1px solid var(--color-border);
@@ -299,4 +305,87 @@
 .forgot a {
   color: var(--color-brand);
   text-decoration: none;
+}
+
+/* ========== PROJECTS ========== */
+.page-projects h1 {
+  text-align: center;
+  font-size: 2.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.page-projects .lead {
+  text-align: center;
+  color: var(--color-text-muted);
+  margin-top: 0.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-rows: auto auto auto 1fr auto;
+  gap: 1.5rem;
+}
+
+.project-card {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  padding: 1.5rem;
+  display: grid;
+  grid-row: span 5;
+  grid-template-rows: subgrid;
+  gap: 0.5rem;
+  box-shadow: var(--shadow-card);
+  transition: border-color 0.15s ease;
+}
+
+.project-card:hover {
+  border-color: var(--color-featured-border);
+}
+
+.project-icon {
+  font-size: 1.5rem;
+  color: var(--color-brand);
+}
+
+.project-card h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.project-desc {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.project-tags {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.25rem 0;
+}
+
+.project-tags li {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-featured-tint);
+  color: var(--color-brand);
+  border: 1px solid var(--color-featured-border);
+}
+
+.project-status {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  align-self: end;
+}
+
+.project-featured {
+  background: var(--color-featured-tint);
+  border: 2px solid var(--color-featured-border);
 }

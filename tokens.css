@@ -30,6 +30,13 @@
 }
 
 /* LAYER 3 — COMPONENT (color-mix derived, oklch) */
+/* Cascade-Frage:
+   1. --color-brand ist auf Layer 2 (Semantic) definiert.
+   2. Wenn ich in .login-card --color-brand neu setze, wuerden alle Layer-3-Tokens
+      (featured-tint, featured-border, button-hover) innerhalb der .login-card
+      automatisch den neuen Wert verwenden — Cascade-Vererbung greift lokal.
+   3. Das waere eine gute Idee fuer lokale Branding-Varianten (z.B. Error-State),
+      aber gefaehrlich wenn unbewusst gemacht — alle abgeleiteten Tokens aendern sich mit. */
 :root {
   --color-featured-tint:   color-mix(in oklch, var(--color-brand)  8%, white);
   --color-featured-border: color-mix(in oklch, var(--color-brand) 70%, white);

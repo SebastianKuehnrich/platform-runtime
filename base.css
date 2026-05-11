@@ -26,6 +26,7 @@ body {
 }
 
 /* === Site Navigation (auf allen Pages identisch) === */
+/* Specificity: (0, 0, 1, 0) — eine Klasse */
 .site-nav {
   display: flex;
   justify-content: space-between;
@@ -55,7 +56,9 @@ body {
   transition: color 0.15s ease;
 }
 
+/* Specificity: (0, 0, 2, 2) — zwei Klassen/Pseudo-Klassen + zwei Types */
 .site-nav nav a:hover,
+/* Specificity: (0, 0, 2, 2) — eine Klasse + ein Attribut + zwei Types */
 .site-nav nav a[aria-current="page"] {
   color: var(--color-brand);
 }
@@ -137,6 +140,7 @@ body {
   transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
+/* Specificity: (0, 0, 2, 0) — zwei Klassen */
 .btn-primary {
   background: var(--color-brand);
   color: white;

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MicroSim — Custom Property Cascade Tree</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    .container { max-width: 800px; margin: 0 auto; }
+    h1 { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.5rem; }
+    .subtitle { color: #94a3b8; margin-bottom: 2rem; }
+    .tree {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .tree-node {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 0.75rem;
+      padding: 1rem 1.25rem;
+      margin-left: var(--indent, 0);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 1rem;
+    }
+    .tree-node + .tree-node { margin-top: 0.75rem; }
+    .node-label {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    .node-tag { color: #64748b; font-size: 0.8rem; }
+    .node-input {
+      display: flex; gap: 0.5rem; align-items: center;
+    }
+    .node-input input {
+      width: 140px; padding: 0.4rem 0.6rem;
+      border: 1px solid #334155; border-radius: 0.375rem;
+      background: #0f172a; color: #f8fafc; font: inherit; font-size: 0.85rem;
+      font-family: 'Fira Code', monospace;
+    }
+    .node-input input:focus { outline: none; border-color: #6366f1; }
+    .connector {
+      width: 2px; height: 12px; background: #334155;
+      margin-left: calc(var(--indent, 0px) + 24px);
+    }
+    .result-section {
+      margin-top: 2rem;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .result-section h2 { font-size: 1rem; color: #94a3b8; margin-bottom: 1rem; }
+    .result-preview {
+      display: inline-flex;
+      padding: 0.75rem 2rem;
+      border-radius: 0.5rem;
+      font-weight: 700;
+      font-size: 1rem;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+    .cascade-path {
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      color: #64748b;
+      font-family: 'Fira Code', monospace;
+    }
+    .fallback-toggle {
+      margin-top: 1.5rem;
+      display: flex; gap: 0.75rem; justify-content: center; align-items: center;
+    }
+    .fallback-toggle label { font-size: 0.85rem; color: #94a3b8; cursor: pointer; }
+    .fallback-toggle input { accent-color: #6366f1; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Custom Property Cascade Tree</h1>
+    <p class="subtitle">Setze <code>--color-brand</code> auf verschiedenen Ebenen und beobachte die Vererbung.</p>
+
+    <div class="tree">
+      <div class="tree-node" style="--indent: 0px">
+        <div><span class="node-label">:root</span> <span class="node-tag">— Document Root</span></div>
+        <div class="node-input">
+          <code style="color:#64748b;font-size:0.8rem;">--color-brand:</code>
+          <input type="text" id="rootVal" value="#6366f1" placeholder="z.B. blue">
+        </div>
+      </div>
+      <div class="connector" style="--indent: 0px"></div>
+
+      <div class="tree-node" style="--indent: 40px">
+        <div><span class="node-label">&lt;section&gt;</span> <span class="node-tag">— .dark-section</span></div>
+        <div class="node-input">
+          <code style="color:#64748b;font-size:0.8rem;">--color-brand:</code>
+          <input type="text" id="sectionVal" value="" placeholder="(erbt)">
+        </div>
+      </div>
+      <div class="connector" style="--indent: 40px"></div>
+
+      <div class="tree-node" style="--indent: 80px">
+        <div><span class="node-label">&lt;article&gt;</span> <span class="node-tag">— .card</span></div>
+        <div class="node-input">
+          <code style="color:#64748b;font-size:0.8rem;">--color-brand:</code>
+          <input type="text" id="cardVal" value="" placeholder="(erbt)">
+        </div>
+      </div>
+      <div class="connector" style="--indent: 80px"></div>
+
+      <div class="tree-node" style="--indent: 120px">
+        <div><span class="node-label">&lt;button&gt;</span> <span class="node-tag">— .btn</span></div>
+        <div class="node-input">
+          <code style="color:#64748b;font-size:0.8rem;">--color-brand:</code>
+          <input type="text" id="btnVal" value="" placeholder="(erbt)">
+        </div>
+      </div>
+    </div>
+
+    <div class="fallback-toggle">
+      <input type="checkbox" id="fallbackMode">
+      <label for="fallbackMode">Fallback-Mode: ungueltige Werte testen</label>
+    </div>
+
+    <div class="result-section">
+      <h2>Berechneter Wert am &lt;button&gt;</h2>
+      <div class="result-preview" id="preview">Button</div>
+      <div class="cascade-path" id="cascadePath"></div>
+    </div>
+  </div>
+
+  <script>
+    function isValidColor(str) {
+      if (!str || !str.trim()) return false;
+      const opt = new Option();
+      opt.style.color = str.trim();
+      return opt.style.color !== '';
+    }
+
+    function update() {
+      const levels = [
+        { id: 'rootVal', name: ':root' },
+        { id: 'sectionVal', name: 'section' },
+        { id: 'cardVal', name: '.card' },
+        { id: 'btnVal', name: 'button' }
+      ];
+
+      let resolvedColor = null;
+      let resolvedFrom = '(kein Wert gesetzt)';
+      const path = [];
+
+      for (const level of levels) {
+        const val = document.getElementById(level.id).value.trim();
+        if (val) {
+          if (isValidColor(val)) {
+            resolvedColor = val;
+            resolvedFrom = level.name;
+            path.push(`${level.name}: ${val} ✓`);
+          } else {
+            path.push(`${level.name}: ${val} ✗ (ungueltig)`);
+          }
+        } else {
+          path.push(`${level.name}: (erbt)`);
+        }
+      }
+
+      const preview = document.getElementById('preview');
+      const cascadePath = document.getElementById('cascadePath');
+
+      if (resolvedColor) {
+        preview.style.background = resolvedColor;
+        preview.style.color = isLightColor(resolvedColor) ? '#0f172a' : '#ffffff';
+        preview.textContent = `Button — ${resolvedColor}`;
+      } else {
+        preview.style.background = '#334155';
+        preview.style.color = '#94a3b8';
+        preview.textContent = 'Button — kein Wert';
+      }
+
+      cascadePath.innerHTML = `Cascade: ${path.join(' → ')}`;
+      cascadePath.innerHTML += `<br>Aufgeloest von: <strong style="color:#e2e8f0">${resolvedFrom}</strong>`;
+    }
+
+    function isLightColor(color) {
+      const el = document.createElement('div');
+      el.style.color = color;
+      document.body.appendChild(el);
+      const computed = getComputedStyle(el).color;
+      document.body.removeChild(el);
+      const match = computed.match(/(\d+),\s*(\d+),\s*(\d+)/);
+      if (!match) return false;
+      const lum = (0.299 * +match[1] + 0.587 * +match[2] + 0.114 * +match[3]) / 255;
+      return lum > 0.6;
+    }
+
+    document.getElementById('fallbackMode').addEventListener('change', (e) => {
+      if (e.target.checked) {
+        document.getElementById('cardVal').value = 'foo';
+      } else {
+        document.getElementById('cardVal').value = '';
+      }
+      update();
+    });
+
+    document.querySelectorAll('input[type=text]').forEach(el => el.addEventListener('input', update));
+    update();
+  </script>
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MicroSim — Position-Try Edge Demo</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0f172a; color: #f8fafc;
+      min-height: 100vh; padding: 2rem;
+    }
+    .container { max-width: 800px; margin: 0 auto; }
+    h1 { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.5rem; }
+    .subtitle { color: #94a3b8; margin-bottom: 2rem; }
+    .toggle-bar { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; }
+    .toggle-btn {
+      padding: 0.6rem 1.25rem; border: 1px solid #334155; border-radius: 0.5rem;
+      background: #1e293b; color: #94a3b8; font: inherit; font-weight: 600;
+      font-size: 0.85rem; cursor: pointer;
+    }
+    .toggle-btn.active { background: #6366f1; color: white; border-color: #6366f1; }
+    .viewport-sim {
+      position: relative; width: 100%; height: 400px;
+      background: #1e293b; border: 2px solid #334155; border-radius: 0.75rem;
+      overflow: hidden; cursor: grab;
+    }
+    .viewport-sim:active { cursor: grabbing; }
+    .viewport-label {
+      position: absolute; top: 8px; left: 12px;
+      font-size: 0.7rem; color: #475569; text-transform: uppercase;
+      letter-spacing: 0.05em; font-weight: 700;
+    }
+    .drag-card {
+      position: absolute; width: 160px; padding: 1rem;
+      background: #0f172a; border: 1px solid #475569; border-radius: 0.5rem;
+      text-align: center; user-select: none;
+      transition: border-color 0.15s ease;
+    }
+    .drag-card:hover { border-color: #6366f1; }
+    .drag-card .val { font-size: 1.25rem; font-weight: 800; color: #6366f1; }
+    .drag-card .lbl { font-size: 0.75rem; color: #94a3b8; }
+    .tooltip-el {
+      position: absolute; padding: 0.35rem 0.65rem;
+      background: #f8fafc; color: #0f172a; font-size: 0.75rem; font-weight: 600;
+      border-radius: 0.375rem; white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      pointer-events: none;
+      transition: all 0.2s ease;
+    }
+    .tooltip-el::after {
+      content: ''; position: absolute; width: 6px; height: 6px;
+      background: #f8fafc; transform: rotate(45deg);
+    }
+    .tooltip-el.top::after { bottom: -3px; left: 50%; margin-left: -3px; }
+    .tooltip-el.bottom::after { top: -3px; left: 50%; margin-left: -3px; }
+    .tooltip-el.left::after { right: -3px; top: 50%; margin-top: -3px; }
+    .tooltip-el.right::after { left: -3px; top: 50%; margin-top: -3px; }
+    .info-box {
+      margin-top: 1.5rem; background: #1e293b; border: 1px solid #334155;
+      border-radius: 0.75rem; padding: 1rem; font-size: 0.85rem; color: #94a3b8;
+      line-height: 1.6;
+    }
+    .info-box code {
+      background: #0f172a; padding: 0.1rem 0.35rem; border-radius: 0.25rem; color: #c7d2fe;
+    }
+    .clipped { color: #ef4444 !important; }
+    .instruction {
+      text-align: center; padding: 0.75rem; background: #0f172a;
+      border: 1px solid #334155; border-radius: 0.5rem; margin-bottom: 1rem;
+      font-size: 0.85rem; color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Position-Try Edge Demo</h1>
+    <p class="subtitle">Ziehe die Card an den Viewport-Rand — beobachte den Tooltip-Flip.</p>
+
+    <div class="toggle-bar">
+      <button class="toggle-btn" id="btnOff" onclick="setMode(false)">position-try OFF</button>
+      <button class="toggle-btn active" id="btnOn" onclick="setMode(true)">position-try ON</button>
+    </div>
+
+    <div class="instruction">Klicke und ziehe die Stat-Card an die Raender des Viewports.</div>
+
+    <div class="viewport-sim" id="viewport">
+      <span class="viewport-label">Simulated Viewport</span>
+      <div class="drag-card" id="dragCard">
+        <div class="val">1.2K</div>
+        <div class="lbl">Posts</div>
+      </div>
+      <div class="tooltip-el top" id="tooltip">Genau 1.247 Posts seit Maerz 2023</div>
+    </div>
+
+    <div class="info-box" id="infoBox"></div>
+  </div>
+
+  <script>
+    let positionTry = true;
+    let dragging = false;
+    let offsetX = 0, offsetY = 0;
+    const card = document.getElementById('dragCard');
+    const tooltip = document.getElementById('tooltip');
+    const viewport = document.getElementById('viewport');
+
+    card.style.left = '300px';
+    card.style.top = '150px';
+
+    function setMode(on) {
+      positionTry = on;
+      document.getElementById('btnOff').className = 'toggle-btn' + (!on ? ' active' : '');
+      document.getElementById('btnOn').className = 'toggle-btn' + (on ? ' active' : '');
+      updateTooltip();
+    }
+
+    card.addEventListener('mousedown', (e) => {
+      dragging = true;
+      const rect = card.getBoundingClientRect();
+      offsetX = e.clientX - rect.left;
+      offsetY = e.clientY - rect.top;
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!dragging) return;
+      const vpRect = viewport.getBoundingClientRect();
+      let x = e.clientX - vpRect.left - offsetX;
+      let y = e.clientY - vpRect.top - offsetY;
+      x = Math.max(0, Math.min(x, vpRect.width - card.offsetWidth));
+      y = Math.max(0, Math.min(y, vpRect.height - card.offsetHeight));
+      card.style.left = x + 'px';
+      card.style.top = y + 'px';
+      updateTooltip();
+    });
+
+    document.addEventListener('mouseup', () => { dragging = false; });
+
+    function updateTooltip() {
+      const vpRect = viewport.getBoundingClientRect();
+      const cardRect = card.getBoundingClientRect();
+      const cardX = parseFloat(card.style.left);
+      const cardY = parseFloat(card.style.top);
+      const vpW = vpRect.width;
+      const vpH = vpRect.height;
+      const tooltipH = 28;
+      const tooltipW = tooltip.offsetWidth;
+      const gap = 8;
+      const info = document.getElementById('infoBox');
+
+      let pos = 'top';
+      let tX, tY;
+
+      if (positionTry) {
+        if (cardY - tooltipH - gap < 0) {
+          if (cardY + card.offsetHeight + tooltipH + gap < vpH) {
+            pos = 'bottom';
+          } else if (cardX + card.offsetWidth + tooltipW + gap < vpW) {
+            pos = 'right';
+          } else {
+            pos = 'left';
+          }
+        }
+        tooltip.classList.remove('clipped');
+        info.innerHTML = `<code>position-try-fallbacks: flip-block, flip-inline</code> — Tooltip flippt automatisch nach <strong>${pos}</strong>. Browser erkennt den Edge und waehlt die beste Position synchron im Layout-Pass. Kein Frame-Lag.`;
+      } else {
+        tooltip.classList.toggle('clipped', cardY - tooltipH - gap < 0);
+        pos = 'top';
+        if (cardY - tooltipH - gap < 0) {
+          info.innerHTML = '<span style="color:#ef4444;font-weight:700;">Tooltip clippt!</span> Ohne <code>position-try</code> bleibt der Tooltip oben — auch wenn kein Platz ist. In Production wuerde eine JS-Library (Floating-UI) das erst nach einem Frame korrigieren.';
+        } else {
+          info.innerHTML = 'Tooltip ist oben — noch kein Edge-Problem. Ziehe die Card nach oben.';
+        }
+      }
+
+      tooltip.className = 'tooltip-el ' + pos;
+      switch (pos) {
+        case 'top':
+          tX = cardX + card.offsetWidth / 2 - tooltipW / 2;
+          tY = cardY - tooltipH - gap;
+          break;
+        case 'bottom':
+          tX = cardX + card.offsetWidth / 2 - tooltipW / 2;
+          tY = cardY + card.offsetHeight + gap;
+          break;
+        case 'right':
+          tX = cardX + card.offsetWidth + gap;
+          tY = cardY + card.offsetHeight / 2 - tooltipH / 2;
+          break;
+        case 'left':
+          tX = cardX - tooltipW - gap;
+          tY = cardY + card.offsetHeight / 2 - tooltipH / 2;
+          break;
+      }
+      tooltip.style.left = tX + 'px';
+      tooltip.style.top = tY + 'px';
+    }
+
+    updateTooltip();
+  </script>
+</body>
+</html>

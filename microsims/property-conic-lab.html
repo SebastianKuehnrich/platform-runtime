@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MicroSim — @property Conic-Gradient Lab</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0f172a; color: #f8fafc;
+      min-height: 100vh; display: grid; place-items: center; padding: 2rem;
+    }
+    .container { width: 100%; max-width: 800px; }
+    h1 { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.5rem; }
+    .subtitle { color: #94a3b8; margin-bottom: 2rem; }
+    .layout { display: grid; grid-template-columns: 280px 1fr; gap: 2rem; }
+    .controls { display: flex; flex-direction: column; gap: 1.25rem; }
+    .control label {
+      display: flex; justify-content: space-between;
+      font-size: 0.85rem; font-weight: 600; color: #94a3b8; margin-bottom: 0.35rem;
+    }
+    .control label span { color: #6366f1; font-family: 'Fira Code', monospace; }
+    .control input[type="range"] { width: 100%; accent-color: #6366f1; }
+    .toggle-row { display: flex; gap: 0.5rem; }
+    .toggle-btn {
+      flex: 1; padding: 0.5rem; border: 1px solid #334155; border-radius: 0.5rem;
+      background: #1e293b; color: #94a3b8; font: inherit; font-size: 0.75rem;
+      font-weight: 600; cursor: pointer; text-align: center;
+    }
+    .toggle-btn.active { background: #6366f1; color: white; border-color: #6366f1; }
+    .preview-area {
+      display: grid; place-items: center; min-height: 320px;
+      background: #1e293b; border-radius: 0.75rem; border: 1px solid #334155; padding: 2rem;
+    }
+    @property --demo-angle {
+      syntax: '<angle>';
+      initial-value: 0deg;
+      inherits: false;
+    }
+    .demo-card {
+      width: 240px; padding: 2rem; background: #1e293b;
+      border-radius: 0.75rem; text-align: center; position: relative;
+    }
+    .demo-card::before {
+      content: ''; position: absolute; inset: -2px; z-index: -1;
+      border-radius: 0.85rem;
+      background: conic-gradient(
+        from var(--demo-angle),
+        var(--glow-color, #6366f1) 0%,
+        transparent 30%,
+        transparent 70%,
+        var(--glow-color, #6366f1) 100%
+      );
+    }
+    .demo-card.animating::before {
+      animation: demo-rotate var(--duration, 6s) linear infinite;
+    }
+    @keyframes demo-rotate { to { --demo-angle: 360deg; } }
+    .demo-card h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+    .demo-card p { font-size: 0.85rem; color: #94a3b8; }
+    .code-output {
+      margin-top: 2rem; background: #0f172a; border: 1px solid #334155;
+      border-radius: 0.75rem; padding: 1rem; overflow-x: auto;
+    }
+    .code-output pre {
+      font-family: 'Fira Code', monospace; font-size: 0.75rem; color: #c7d2fe;
+      white-space: pre; line-height: 1.6;
+    }
+    @media (max-width: 650px) { .layout { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>@property Conic-Gradient Lab</h1>
+    <p class="subtitle">Experimentiere mit Animation-Duration, Hue und inherits.</p>
+
+    <div class="layout">
+      <div class="controls">
+        <div class="control">
+          <label>Duration <span id="valDur">6</span>s</label>
+          <input type="range" id="sliderDur" min="1" max="30" value="6" step="0.5">
+        </div>
+        <div class="control">
+          <label>Hue <span id="valHue">239</span></label>
+          <input type="range" id="sliderHue" min="0" max="360" value="239">
+        </div>
+        <div class="control">
+          <label>Saturation <span id="valSat">84</span>%</label>
+          <input type="range" id="sliderSat" min="10" max="100" value="84">
+        </div>
+        <div class="control">
+          <label>Lightness <span id="valLit">67</span>%</label>
+          <input type="range" id="sliderLit" min="30" max="90" value="67">
+        </div>
+        <div>
+          <label style="font-size:0.85rem;font-weight:600;color:#94a3b8;margin-bottom:0.35rem;display:block;">inherits</label>
+          <div class="toggle-row">
+            <button class="toggle-btn active" id="btnFalse" onclick="setInherits(false)">false</button>
+            <button class="toggle-btn" id="btnTrue" onclick="setInherits(true)">true (Bug!)</button>
+          </div>
+        </div>
+        <button class="toggle-btn" id="btnPlay" onclick="togglePlay()" style="background:#22c55e;color:#0f172a;border-color:#22c55e;">Pause</button>
+      </div>
+
+      <div class="preview-area">
+        <div class="demo-card animating" id="demoCard">
+          <h3>Pro Plan</h3>
+          <p>Animierter Conic-Gradient Border via @property</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-output">
+      <pre id="codeOut"></pre>
+    </div>
+  </div>
+
+  <script>
+    let playing = true;
+    let inheritsVal = false;
+
+    function setInherits(val) {
+      inheritsVal = val;
+      document.getElementById('btnFalse').className = 'toggle-btn' + (!val ? ' active' : '');
+      document.getElementById('btnTrue').className = 'toggle-btn' + (val ? ' active' : '');
+      update();
+    }
+
+    function togglePlay() {
+      playing = !playing;
+      const btn = document.getElementById('btnPlay');
+      btn.textContent = playing ? 'Pause' : 'Play';
+      btn.style.background = playing ? '#22c55e' : '#6366f1';
+      update();
+    }
+
+    function update() {
+      const dur = document.getElementById('sliderDur').value;
+      const hue = document.getElementById('sliderHue').value;
+      const sat = document.getElementById('sliderSat').value;
+      const lit = document.getElementById('sliderLit').value;
+
+      document.getElementById('valDur').textContent = dur;
+      document.getElementById('valHue').textContent = hue;
+      document.getElementById('valSat').textContent = sat;
+      document.getElementById('valLit').textContent = lit;
+
+      const color = `oklch(${lit}% ${(sat / 100 * 0.3).toFixed(2)} ${hue})`;
+      const card = document.getElementById('demoCard');
+      card.style.setProperty('--glow-color', color);
+      card.style.setProperty('--duration', dur + 's');
+      card.className = 'demo-card' + (playing ? ' animating' : '');
+
+      document.getElementById('codeOut').textContent =
+`@property --pro-glow-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: ${inheritsVal};
+}
+
+.plan-featured::before {
+  background: conic-gradient(
+    from var(--pro-glow-angle),
+    ${color} 0%,
+    transparent 30%,
+    transparent 70%,
+    ${color} 100%
+  );
+  animation: pro-glow-rotate ${dur}s linear infinite;
+}`;
+    }
+
+    document.querySelectorAll('input[type=range]').forEach(el => el.addEventListener('input', update));
+    update();
+  </script>
+</body>
+</html>
