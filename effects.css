@@ -20,7 +20,7 @@
 
 @property --glow-spread {
   syntax: '<length>';
-  initial-value: -2px;
+  initial-value: -1px;
   inherits: false;
 }
 
@@ -71,7 +71,7 @@
 }
 
 .glow-card:hover::before {
-  inset: -4px;
+  inset: -2px;
 }
 
 .glow-card__beam {
@@ -161,32 +161,7 @@
   }
 }
 
-/* === Pricing Featured-Plan Glow === */
-
-.plan-featured {
-  position: relative;
-}
-
-.plan-featured::before {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  z-index: -1;
-  border-radius: var(--radius-card);
-  background: conic-gradient(
-    from var(--gradient-angle),
-    var(--color-brand) 0%,
-    transparent 30%,
-    transparent 70%,
-    var(--color-brand) 100%
-  );
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .plan-featured::before {
-    animation: rotate-glow 6s linear infinite;
-  }
-}
+/* === Pricing Featured-Plan: nutzt .glow-card Effekt === */
 
 /* === Hero Visual Enhancement === */
 
