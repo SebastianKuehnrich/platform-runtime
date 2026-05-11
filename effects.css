@@ -1,11 +1,30 @@
 /* ============================================================
    EFFECTS.CSS — @property-driven Animations + @scope Isolation
    Path B Advanced Topics: A1 (Conic Glow) + A2 (@scope)
+   Warmup-Technik: 3-Layer Glow-Card mit Knockout-Text
    ============================================================ */
 
-/* === A1: @property Animated Conic-Gradient Border === */
+/* === @property Deklarationen === */
 
-@property --pro-glow-angle {
+@property --gradient-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@property --glow-hue {
+  syntax: '<number>';
+  initial-value: 250;
+  inherits: false;
+}
+
+@property --glow-spread {
+  syntax: '<length>';
+  initial-value: -2px;
+  inherits: false;
+}
+
+@property --beam-angle {
   syntax: '<angle>';
   initial-value: 0deg;
   inherits: false;
@@ -16,6 +35,133 @@
   initial-value: 239deg;
   inherits: false;
 }
+
+/* === Glow-Card: 3-Layer Stack ===
+   ::before  = Border-Glow          (z: -1)
+   __beam    = Weisse Basis + Farbstrahl
+   __surface = Dunkle Card + Text, mix-blend-mode: multiply
+               → Text wird zum Knockout
+   ================================ */
+
+.glow-card {
+  position: relative;
+  border-radius: var(--radius-card);
+  isolation: isolate;
+  transition: transform 0.3s ease;
+}
+
+.glow-card:hover {
+  transform: scale(1.02);
+}
+
+.glow-card::before {
+  content: '';
+  position: absolute;
+  inset: var(--glow-spread);
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--gradient-angle),
+    oklch(70% 0.2 var(--glow-hue)) 0%,
+    transparent 25%,
+    transparent 75%,
+    oklch(70% 0.2 var(--glow-hue)) 100%
+  );
+  z-index: -1;
+  transition: inset 0.4s ease;
+}
+
+.glow-card:hover::before {
+  inset: -4px;
+}
+
+.glow-card__beam {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  background: conic-gradient(
+    from var(--beam-angle),
+    oklch(70% 0.23 250) 0%,
+    oklch(80% 0.13 250) 13%,
+    #fff 24%,
+    #fff 76%,
+    oklch(80% 0.13 250) 87%,
+    oklch(70% 0.23 250) 100%
+  );
+}
+
+.glow-card__surface {
+  position: relative;
+  padding: 2rem;
+  background: #1A1F2E;
+  border-radius: inherit;
+  mix-blend-mode: multiply;
+  color: #fff;
+}
+
+/* === Glow-Card Animations (motion-safe) === */
+
+@media (prefers-reduced-motion: no-preference) {
+  .glow-card::before {
+    animation:
+      rotate-glow 4s linear infinite,
+      shift-hue 8s linear infinite;
+  }
+
+  .glow-card:hover::before {
+    animation:
+      rotate-glow 2s linear infinite,
+      shift-hue 8s linear infinite;
+  }
+
+  .glow-card__beam {
+    animation: rotate-beam 4s linear infinite;
+  }
+
+  .glow-card:hover .glow-card__beam {
+    animation: rotate-beam 2s linear infinite;
+  }
+}
+
+@keyframes rotate-glow {
+  to { --gradient-angle: 360deg; }
+}
+
+@keyframes rotate-beam {
+  to { --beam-angle: 360deg; }
+}
+
+@keyframes shift-hue {
+  0%   { --glow-hue: 250; }
+  33%  { --glow-hue: 300; }
+  66%  { --glow-hue: 200; }
+  100% { --glow-hue: 250; }
+}
+
+/* === Reduced Motion: statischer Fallback === */
+
+@media (prefers-reduced-motion: reduce) {
+  .glow-card::before {
+    animation: none;
+    --gradient-angle: 45deg;
+    --glow-hue: 250;
+  }
+
+  .glow-card__beam {
+    animation: none;
+  }
+
+  .glow-card:hover::before,
+  .glow-card:hover .glow-card__beam {
+    animation: none;
+  }
+
+  .glow-card:hover {
+    transform: none;
+  }
+}
+
+/* === Pricing Featured-Plan Glow === */
 
 .plan-featured {
   position: relative;
@@ -28,7 +174,7 @@
   z-index: -1;
   border-radius: var(--radius-card);
   background: conic-gradient(
-    from var(--pro-glow-angle),
+    from var(--gradient-angle),
     var(--color-brand) 0%,
     transparent 30%,
     transparent 70%,
@@ -38,12 +184,8 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .plan-featured::before {
-    animation: pro-glow-rotate 6s linear infinite;
+    animation: rotate-glow 6s linear infinite;
   }
-}
-
-@keyframes pro-glow-rotate {
-  to { --pro-glow-angle: 360deg; }
 }
 
 /* === Hero Visual Enhancement === */
@@ -87,29 +229,10 @@
   -webkit-text-fill-color: transparent;
 }
 
-/* === A2: @scope Component Isolation === */
+/* === @scope Component Isolation === */
 
-@scope (.glow-card) {
+@scope (.glow-card) to (.glow-card__surface) {
   :scope {
-    position: relative;
-    overflow: hidden;
-  }
-
-  :scope::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(
-      circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-      color-mix(in oklch, var(--color-brand) 15%, transparent) 0%,
-      transparent 60%
-    );
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  :scope:hover::after {
-    opacity: 1;
+    overflow: visible;
   }
 }

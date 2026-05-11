@@ -367,32 +367,25 @@
 .projects-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  grid-template-rows: auto auto auto 1fr auto;
   gap: 1.5rem;
 }
 
 .project-card {
-  background: var(--color-card);
-  border: 1px solid var(--color-border);
   border-radius: var(--radius-card);
-  padding: 1.5rem;
-  display: grid;
-  grid-row: span 5;
-  grid-template-rows: subgrid;
-  gap: 0.5rem;
   box-shadow: var(--shadow-card);
-  transition: border-color 0.15s ease, transform 0.2s ease;
   container-type: inline-size;
   container-name: project;
 }
 
-.project-card:hover {
-  border-color: var(--color-featured-border);
+.project-card .glow-card__surface {
+  display: grid;
+  grid-template-rows: auto auto auto 1fr auto;
+  gap: 0.5rem;
 }
 
 .project-icon {
   font-size: 1.5rem;
-  color: var(--color-brand);
+  color: #fff;
 }
 
 .project-card h2 {
@@ -401,7 +394,7 @@
 }
 
 .project-desc {
-  color: var(--color-text-muted);
+  color: oklch(90% 0.01 250);
   font-size: 0.9rem;
 }
 
@@ -418,18 +411,17 @@
   font-weight: 600;
   padding: 0.2rem 0.5rem;
   border-radius: var(--radius-pill);
-  background: var(--color-featured-tint);
-  color: var(--color-brand);
-  border: 1px solid var(--color-featured-border);
+  background: transparent;
+  color: #fff;
+  border: 1px solid oklch(80% 0.05 250);
 }
 
 .project-status {
   font-size: 0.8rem;
-  color: var(--color-text-muted);
+  color: oklch(75% 0.01 250);
   align-self: end;
 }
 
-.project-featured {
-  background: var(--color-featured-tint);
-  border: 2px solid var(--color-featured-border);
+.project-featured .glow-card__surface {
+  background: #1A1F2E;
 }
