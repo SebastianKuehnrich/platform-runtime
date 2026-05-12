@@ -47,8 +47,8 @@ body {
 /* === Site Navigation (auf allen Pages identisch) === */
 /* Specificity: (0, 0, 1, 0) — eine Klasse */
 .site-nav {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   padding: 1.25rem 2rem;
   background: var(--color-card);
@@ -115,6 +115,12 @@ body {
 }
 
 @media (max-width: 640px) {
+  .site-nav {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+  }
+
   .hamburger {
     display: flex;
   }
@@ -132,10 +138,6 @@ body {
     display: none;
     box-shadow: var(--shadow-card);
     z-index: 100;
-  }
-
-  .site-nav {
-    position: relative;
   }
 
   .site-nav:has(.nav-toggle:checked) nav {
@@ -161,6 +163,7 @@ body {
   height: 24px;
   cursor: pointer;
   flex-shrink: 0;
+  justify-self: end;
 }
 
 .theme-switch input {
